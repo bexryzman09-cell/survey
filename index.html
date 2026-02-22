@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Survey System</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <!-- Фон -->
+    <div class="bg"></div>
+
+    <!-- Шапка -->
+    <header class="top-header">
+        <div class="logo">Secure<span>Survey</span></div>
+        <div class="controls">
+            <select id="language">
+                <option value="ru">🇷🇺 RU</option>
+                <option value="uz">🇺🇿 UZ</option>
+                <option value="en">🇬🇧 EN</option>
+            </select>
+            <button id="themeToggle">🌙</button>
+        </div>
+    </header>
+
+    <!-- Основной контейнер -->
+    <div class="wrapper">
+        <div class="card glass">
+            <h2 id="title">Вход в систему</h2>
+
+            <!-- Поле пользователя -->
+            <div class="input-box">
+                <input type="text" id="user" placeholder=" " autocomplete="off">
+
+            </div>
+
+            <!-- Поле пароля -->
+            <div class="input-box password-box">
+                <input type="password" id="password" placeholder="Пароль" autocomplete="off">
+                <span id="togglePass">👁</span>
+
+            </div>
+
+            <!-- Кнопка входа -->
+            <button id="loginBtn" class="btn-glow">
+                <span id="btnText">Войти</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+
+            <!-- Сообщение об ошибке -->
+            <div class="info-message">
+                <p id="message"></p>
+            </div>
+
+            <!-- Подсказка -->
+            <div class="one-time-hint">
+                <span>🔐 Одноразовые аккаунты выдаются администратором</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем JS -->
+    <script src="main.js"></script>
+</body>
+
+</html>

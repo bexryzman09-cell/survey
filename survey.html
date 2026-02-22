@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Test</title>
+    <link rel="stylesheet" href="survey.css">
+</head>
+<body>
+    <!-- Фон -->
+    <div class="bg"></div>
+
+    <!-- Шапка -->
+    <header class="top-header">
+        <div class="logo">Secure<span>Survey</span></div>
+        <div class="user-info">
+            <span id="userRole"></span>
+            <span id="userName"></span>
+        </div>
+        <div class="controls">
+            <select id="language">
+                <option value="ru">🇷🇺 RU</option>
+                <option value="uz">🇺🇿 UZ</option>
+                <option value="en">🇬🇧 EN</option>
+            </select>
+            <button id="themeToggle">🌙</button>
+            <button id="logoutBtn" class="logout-btn">🚪</button>
+        </div>
+    </header>
+
+    <!-- Основной контейнер -->
+    <div class="container">
+        <!-- Стартовый экран -->
+        <div id="startScreen" class="card glass">
+            <h2 id="startUser"></h2>
+            <p>Проверьте свои знания по веб-разработке</p>
+            <button id="startBtn" class="btn-glow">Начать тест</button>
+        </div>
+
+        <!-- Контент теста (скрыт в начале) -->
+        <div id="quizContent" class="hidden">
+            <div class="quiz-header">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="question-counter" id="questionCounter">Вопрос 1/10</div>
+            </div>
+            
+            <div id="quizCard" class="card glass"></div>
+            
+            <div class="buttons">
+                <!-- Кнопка назад УДАЛЕНА -->
+                <button id="nextBtn" class="btn-glow">Следующий ➔</button>
+            </div>
+        </div>
+
+        <!-- Админ панель (видна только админу) -->
+        <div id="adminPanel" class="hidden">
+            <div class="card glass">
+                <h3>📝 Управление вопросами</h3>
+                <div id="questionsList"></div>
+                <button id="addQuestionBtn" class="add-btn">➕ Добавить вопрос</button>
+                <button id="saveQuestionsBtn" class="save-btn">💾 Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран результата (скрыт в начале) -->
+    <div id="resultScreen" class="result hidden">
+        <div class="card glass">
+            <h2 id="finalScore"></h2>
+            <div class="result-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Правильных ответов:</span>
+                    <span class="stat-value" id="correctCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Процент:</span>
+                    <span class="stat-value" id="percentValue">0%</span>
+                </div>
+            </div>
+            
+            <!-- БЛОК С ПРАВИЛЬНЫМИ ОТВЕТАМИ -->
+            <div class="answers-review" id="answersReview">
+                <h3>📋 Разбор ответов:</h3>
+                <div id="answersList"></div>
+            </div>
+            
+            <div class="result-buttons">
+                <button onclick="restartTest()" class="btn-glow">🔄 Пройти снова</button>
+                <button onclick="goToStart()" class="btn-secondary">🏠 На главную</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем JS -->
+<script src="survery.js"></script>
+</body>
+</html>
