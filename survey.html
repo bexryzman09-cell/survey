@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="survey.css">
 </head>
 <body>
+    <!-- Скрытые элементы для хранения переведенных текстов -->
+    <div id="languageData" style="display: none;"></div>
+
     <!-- Фон -->
     <div class="bg"></div>
 
-    <!-- Шапка -->
+    <!-- Шапка --> 
     <header class="top-header">
         <div class="logo">Secure<span>Survey</span></div>
         <div class="user-info">
@@ -33,8 +36,8 @@
         <!-- Стартовый экран -->
         <div id="startScreen" class="card glass">
             <h2 id="startUser"></h2>
-            <p>Проверьте свои знания по веб-разработке</p>
-            <button id="startBtn" class="btn-glow">Начать тест</button>
+            <p id="startDescription">Проверьте свои знания по веб-разработке</p>
+            <button id="startBtn" class="btn-glow" data-i18n="startTest">Начать тест</button>
         </div>
 
         <!-- Контент теста (скрыт в начале) -->
@@ -43,24 +46,23 @@
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
                 </div>
-                <div class="question-counter" id="questionCounter">Вопрос 1/10</div>
+                <div class="question-counter" id="questionCounter">Вопрос 1/30</div>
             </div>
             
             <div id="quizCard" class="card glass"></div>
             
             <div class="buttons">
-                <!-- Кнопка назад УДАЛЕНА -->
-                <button id="nextBtn" class="btn-glow">Следующий ➔</button>
+                <button id="nextBtn" class="btn-glow" data-i18n="next">Следующий ➔</button>
             </div>
         </div>
 
         <!-- Админ панель (видна только админу) -->
         <div id="adminPanel" class="hidden">
             <div class="card glass">
-                <h3>📝 Управление вопросами</h3>
+                <h3 data-i18n="manageQuestions">📝 Управление вопросами</h3>
                 <div id="questionsList"></div>
-                <button id="addQuestionBtn" class="add-btn">➕ Добавить вопрос</button>
-                <button id="saveQuestionsBtn" class="save-btn">💾 Сохранить изменения</button>
+                <button id="addQuestionBtn" class="add-btn" data-i18n="addQuestion">➕ Добавить вопрос</button>
+                <button id="saveQuestionsBtn" class="save-btn" data-i18n="saveChanges">💾 Сохранить изменения</button>
             </div>
         </div>
     </div>
@@ -71,28 +73,28 @@
             <h2 id="finalScore"></h2>
             <div class="result-stats">
                 <div class="stat-item">
-                    <span class="stat-label">Правильных ответов:</span>
+                    <span class="stat-label" data-i18n="correctAnswers">Правильных ответов:</span>
                     <span class="stat-value" id="correctCount">0</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Процент:</span>
+                    <span class="stat-label" data-i18n="percentage">Процент:</span>
                     <span class="stat-value" id="percentValue">0%</span>
                 </div>
             </div>
             
             <!-- БЛОК С ПРАВИЛЬНЫМИ ОТВЕТАМИ -->
             <div class="answers-review" id="answersReview">
-                <h3>📋 Разбор ответов:</h3>
+                <h3 data-i18n="answersReview">📋 Разбор ответов:</h3>
                 <div id="answersList"></div>
             </div>
             
             <div class="result-buttons">
-                <button onclick="restartTest()" class="btn-glow">🔄 Пройти снова</button>
+                <button onclick="restartTest()" class="btn-glow" data-i18n="restart">🔄 Пройти снова</button>
             </div>
         </div>
     </div>
 
     <!-- Подключаем JS -->
-<script src="survery.js"></script>
+    <script src="survey.js"></script>
 </body>
 </html>

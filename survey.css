@@ -6,7 +6,7 @@
     margin: 0 auto;
 }
 
-/* Информация о пользователе */
+/* Информация о пользователе */ 
 .user-info {
     display: flex;
     gap: 1rem;

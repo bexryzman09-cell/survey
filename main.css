@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}  
+}   
 
 :root {
     --bg-primary: #0a0a0f;
@@ -131,6 +131,9 @@ body.light select {
 select:hover {
     border-color: var(--accent);
     box-shadow: var(--neon-shadow);
+}
+option{
+    color: #14141f;
 }
 
 /* Кнопка темы */
@@ -357,7 +360,7 @@ button {
     animation: spin 1s linear infinite;
     margin: 0 auto;
     display: none;
-}
+} 
 
 @keyframes spin {
     to {
