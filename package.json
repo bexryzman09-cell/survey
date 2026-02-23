@@ -1,0 +1,21 @@
+{
+  "name": "style",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "go": "git add . && git commit -m \"автосохранение\" && git push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bexryzman09-cell/survey.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bexryzman09-cell/survey/issues"
+  },
+  "homepage": "https://github.com/bexryzman09-cell/survey#readme"
+}

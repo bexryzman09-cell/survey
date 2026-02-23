@@ -7,7 +7,7 @@ document.addEventListener('keydown', e => {
 });
 
 // Элементы
-const body = document.body;
+const body = document.body; 
 const themeToggle = document.getElementById("themeToggle");
 const language = document.getElementById("language");
 const togglePass = document.getElementById("togglePass");
