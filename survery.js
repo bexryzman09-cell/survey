@@ -1,27 +1,42 @@
-// Защита
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+// Защита от просмотра кода
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        (e.ctrlKey && e.key === 'r') ||
+        (e.ctrlKey && e.key === 'R') ||
+        (e.key === 'F5') ||
+        (e.ctrlKey && e.key === 'F5') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'r')) {
         e.preventDefault();
+        return false;
     }
 });
 
-// ПРОВЕРКА ОДНОРАЗОВОГО ДОСТУПА
-const isOneTimeUser = localStorage.getItem('isOneTimeUser') === 'true';
-const hasCompletedTest = localStorage.getItem('completedTest') === 'true';
-
-// Если это одноразовый пользователь и он уже проходил тест - НЕ ПУСКАЕМ!
-if (isOneTimeUser && hasCompletedTest) {
-    alert('❌ Одноразовый доступ уже использован!');
-    window.location.href = 'index.html';
-}
+// Предупреждение при попытке обновить страницу
+window.addEventListener('beforeunload', function (e) {
+    if (document.getElementById('quizContent') && !document.getElementById('quizContent').classList.contains('hidden')) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+});
 
 // Проверка авторизации
 if (!localStorage.getItem('currentUser')) {
     window.location.href = 'index.html';
 }
 
-// Элементы
+// ==== ПОЛУЧАЕМ ДАННЫЕ ====
+const role = localStorage.getItem("role") || "guest";
+const username = localStorage.getItem("currentUser") || "Гость";
+
+// Проверяем, проходил ли пользователь тест (кроме админа)
+const userTestKey = `test_completed_${username}`;
+const testCompleted = localStorage.getItem(userTestKey);
+
+// ==== ЭЛЕМЕНТЫ ====
 const elements = {
     startUser: document.getElementById("startUser"),
     startBtn: document.getElementById("startBtn"),
@@ -30,6 +45,7 @@ const elements = {
     resultScreen: document.getElementById("resultScreen"),
     quizCard: document.getElementById("quizCard"),
     nextBtn: document.getElementById("nextBtn"),
+    backBtn: document.getElementById("backBtn"),
     progress: document.getElementById("progress"),
     finalScore: document.getElementById("finalScore"),
     themeToggle: document.getElementById("themeToggle"),
@@ -44,14 +60,10 @@ const elements = {
     saveQuestionsBtn: document.getElementById("saveQuestionsBtn"),
     correctCount: document.getElementById("correctCount"),
     percentValue: document.getElementById("percentValue"),
-    answersList: document.getElementById("answersList") // Новый элемент
+    answersList: document.getElementById("answersList")
 };
 
-// Данные пользователя
-const role = localStorage.getItem("role") || "guest";
-const username = localStorage.getItem("currentUser") || "Гость";
-
-// Вопросы
+// ==== ВОПРОСЫ ====
 let questions = JSON.parse(localStorage.getItem('surveyQuestions')) || [
     {
         question: "Что такое HTML?",
@@ -105,17 +117,14 @@ let questions = JSON.parse(localStorage.getItem('surveyQuestions')) || [
     }
 ];
 
-// Переменные теста
+// ==== ПЕРЕМЕННЫЕ ТЕСТА ====
 let currentQuestion = 0;
 let score = 0;
 let userAnswers = new Array(questions.length).fill(null);
 
-// Для хранения истории ответов (для показа в конце)
-let answersHistory = [];
-
-// Устанавливаем информацию о пользователе
+// ==== УСТАНАВЛИВАЕМ ИНФОРМАЦИЮ О ПОЛЬЗОВАТЕЛЕ ====
 if (elements.startUser) {
-    elements.startUser.textContent = `Привет, ${username}! 👋`;
+    elements.startUser.textContent = `Привет, ${username}!`;
 }
 
 if (elements.userRole) {
@@ -126,13 +135,35 @@ if (elements.userName) {
     elements.userName.textContent = username;
 }
 
-// Показываем админ-панель
+// ==== ПРОВЕРКА ДОСТУПА К ТЕСТУ ====
+function checkTestAccess() {
+    if (testCompleted && role !== 'admin') {
+        if (elements.startScreen) {
+            elements.startScreen.innerHTML = `
+                <h2>${username}</h2>
+                <p>Вы уже прошли этот тест.</p>
+                <p>Только администратор может проходить тест повторно.</p>
+                <button onclick="logout()" class="btn-glow">Выйти</button>
+            `;
+        }
+        if (elements.startBtn) {
+            elements.startBtn.style.display = 'none';
+        }
+        return false;
+    }
+    return true;
+}
+
+// ==== ПОКАЗЫВАЕМ АДМИН-ПАНЕЛЬ ====
 if (role === 'admin' && elements.adminPanel) {
     elements.adminPanel.classList.remove('hidden');
+    if (elements.backBtn) {
+        elements.backBtn.classList.remove('hidden');
+    }
     loadQuestionsList();
 }
 
-// Тема
+// ==== ТЕМА ====
 if (elements.themeToggle) {
     if (localStorage.getItem("theme") === "light") {
         document.body.classList.add("light");
@@ -147,16 +178,20 @@ if (elements.themeToggle) {
     });
 }
 
-// Язык
+// ==== ЯЗЫК ====
 if (elements.language) {
     if (localStorage.getItem("lang")) {
         elements.language.value = localStorage.getItem("lang");
     }
 }
 
-// Старт теста
+// ==== СТАРТ ТЕСТА ====
 if (elements.startBtn) {
-    elements.startBtn.addEventListener("click", startTest);
+    if (!checkTestAccess()) {
+        elements.startBtn.style.display = 'none';
+    } else {
+        elements.startBtn.addEventListener("click", startTest);
+    }
 }
 
 function startTest() {
@@ -167,12 +202,11 @@ function startTest() {
     currentQuestion = 0;
     score = 0;
     userAnswers = new Array(questions.length).fill(null);
-    answersHistory = [];
 
     showQuestion();
 }
 
-// Показ вопроса
+// ==== ПОКАЗ ВОПРОСА ====
 function showQuestion() {
     if (!elements.quizCard) return;
 
@@ -190,13 +224,9 @@ function showQuestion() {
     for (let i = 0; i < question.answers.length; i++) {
         let answerClass = "answer";
 
-        if (userAnswers[currentQuestion] !== null) {
-            if (i === question.correct) {
-                answerClass += " correct";
-            }
-            if (i === userAnswers[currentQuestion] && i !== question.correct) {
-                answerClass += " wrong";
-            }
+        // Если этот ответ был выбран пользователем, добавляем класс selected
+        if (userAnswers[currentQuestion] === i) {
+            answerClass += " selected";
         }
 
         html += `<div class="${answerClass}" data-index="${i}">${question.answers[i]}</div>`;
@@ -206,51 +236,43 @@ function showQuestion() {
 
     elements.quizCard.innerHTML = html;
 
-    // Обработчики ответов
+    // Добавляем обработчики
     document.querySelectorAll(".answer").forEach(answer => {
         answer.addEventListener("click", function () {
             selectAnswer(parseInt(this.dataset.index));
         });
     });
 
-    // Прогресс
+    // Обновляем прогресс
     if (elements.progress) {
         const progressPercent = ((currentQuestion + 1) / questions.length) * 100;
         elements.progress.style.width = progressPercent + "%";
     }
 }
 
-// Выбор ответа
+// ==== ВЫБОР ОТВЕТА ====
 function selectAnswer(index) {
     if (userAnswers[currentQuestion] !== null) return;
 
+    // Сохраняем ответ пользователя
     userAnswers[currentQuestion] = index;
 
-    // Сохраняем в историю
-    answersHistory[currentQuestion] = {
-        question: questions[currentQuestion].question,
-        userAnswer: index,
-        correctAnswer: questions[currentQuestion].correct,
-        answers: questions[currentQuestion].answers,
-        isCorrect: index === questions[currentQuestion].correct
-    };
+    // Подсвечиваем выбранный ответ
+    const answers = document.querySelectorAll(".answer");
+    answers.forEach(answer => {
+        answer.classList.remove("selected");
+    });
 
+    // Добавляем класс selected только выбранному ответу
+    answers[index].classList.add("selected");
+
+    // Считаем правильные ответы (но не показываем их)
     if (index === questions[currentQuestion].correct) {
         score++;
     }
-
-    const answers = document.querySelectorAll(".answer");
-    answers.forEach((answer, i) => {
-        if (i === questions[currentQuestion].correct) {
-            answer.classList.add("correct");
-        }
-        if (i === index && i !== questions[currentQuestion].correct) {
-            answer.classList.add("wrong");
-        }
-    });
 }
 
-// Кнопка Далее
+// ==== КНОПКА ДАЛЕЕ ====
 if (elements.nextBtn) {
     elements.nextBtn.addEventListener("click", () => {
         if (userAnswers[currentQuestion] === null) {
@@ -268,7 +290,22 @@ if (elements.nextBtn) {
     });
 }
 
-// Завершение теста с показом правильных ответов
+// ==== КНОПКА НАЗАД ====
+if (elements.backBtn) {
+    elements.backBtn.addEventListener("click", () => {
+        if (role !== "admin") {
+            alert("Только администратор может вернуться к предыдущему вопросу!");
+            return;
+        }
+
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion();
+        }
+    });
+}
+
+// ==== ЗАВЕРШЕНИЕ ТЕСТА ====
 function finishQuiz() {
     elements.quizContent.classList.add("hidden");
     elements.resultScreen.classList.remove("hidden");
@@ -287,55 +324,38 @@ function finishQuiz() {
         elements.percentValue.textContent = percent + '%';
     }
 
-    // ПОКАЗЫВАЕМ ПРАВИЛЬНЫЕ ОТВЕТЫ
+    // Показываем правильные ответы ТОЛЬКО в результатах
     showAnswersReview();
 
-    // Если это одноразовый пользователь - сохраняем флаг
-    if (isOneTimeUser) {
-        localStorage.setItem('completedTest', 'true');
+    // Отмечаем, что пользователь прошел тест (если это не админ)
+    if (role !== 'admin') {
+        localStorage.setItem(userTestKey, 'completed');
     }
 }
 
-// Функция для показа разбора ответов
+// ==== ПОКАЗ ПРАВИЛЬНЫХ ОТВЕТОВ (ТОЛЬКО В РЕЗУЛЬТАТАХ) ====
 function showAnswersReview() {
     if (!elements.answersList) return;
 
     let html = '';
 
-    questions.forEach((question, index) => {
+    questions.forEach((q, index) => {
         const userAnswer = userAnswers[index];
-        const isCorrect = userAnswer === question.correct;
-        const userAnswerText = userAnswer !== null ? question.answers[userAnswer] : 'Не выбран';
-        const correctAnswerText = question.answers[question.correct];
-
-        let statusClass = isCorrect ? 'correct-answer' : 'wrong-answer';
-        let statusText = isCorrect ? '✅ Правильно' : '❌ Неправильно';
+        const isCorrect = userAnswer === q.correct;
+        const correctAnswerText = q.answers[q.correct];
+        const userAnswerText = userAnswer !== null ? q.answers[userAnswer] : 'Не выбран';
 
         html += `
-            <div class="review-item ${statusClass}">
-                <div class="review-question">${index + 1}. ${question.question}</div>
+            <div class="review-item ${isCorrect ? 'correct-answer' : 'wrong-answer'}">
+                <div class="review-question">${index + 1}. ${q.question}</div>
                 <div class="review-answers">
-        `;
-
-        // Показываем все варианты ответов
-        question.answers.forEach((answer, i) => {
-            let answerClass = 'review-answer';
-
-            if (i === question.correct && i === userAnswer) {
-                answerClass += ' both-correct'; // Пользователь выбрал правильный
-            } else if (i === question.correct) {
-                answerClass += ' correct-answer'; // Это правильный ответ
-            } else if (i === userAnswer) {
-                answerClass += ' user-selected'; // Пользователь выбрал этот (неправильный)
-            }
-
-            html += `<span class="${answerClass}">${answer}</span>`;
-        });
-
-        html += `
+                    <span class="review-answer correct-answer">✓ Правильный: ${correctAnswerText}</span>
+                    <span class="review-answer ${userAnswer !== null ? (isCorrect ? 'both-correct' : 'user-selected') : ''}">
+                        ${userAnswer !== null ? 'Ваш ответ: ' + userAnswerText : '❌ Ответ не выбран'}
+                    </span>
                 </div>
                 <div class="review-status ${isCorrect ? 'status-correct' : 'status-wrong'}">
-                    ${statusText} • Ваш ответ: ${userAnswerText} • Правильный: ${correctAnswerText}
+                    ${isCorrect ? '✅ Правильно' : '❌ Неправильно'}
                 </div>
             </div>
         `;
@@ -344,7 +364,7 @@ function showAnswersReview() {
     elements.answersList.innerHTML = html;
 }
 
-// Загрузка вопросов для админа
+// ==== ЗАГРУЗКА ВОПРОСОВ ДЛЯ АДМИНА ====
 function loadQuestionsList() {
     if (!elements.questionsList) return;
 
@@ -353,10 +373,10 @@ function loadQuestionsList() {
     questions.forEach((q, index) => {
         html += `
             <div class="question-edit" data-index="${index}">
-                <input type="text" class="q-text" value="${q.question}" placeholder="Вопрос">
-                <input type="text" class="a1" value="${q.answers[0]}" placeholder="Ответ 1">
-                <input type="text" class="a2" value="${q.answers[1]}" placeholder="Ответ 2">
-                <input type="text" class="a3" value="${q.answers[2]}" placeholder="Ответ 3">
+                <input type="text" class="q-text" value="${q.question.replace(/"/g, '&quot;')}" placeholder="Вопрос">
+                <input type="text" class="a1" value="${q.answers[0].replace(/"/g, '&quot;')}" placeholder="Ответ 1">
+                <input type="text" class="a2" value="${q.answers[1].replace(/"/g, '&quot;')}" placeholder="Ответ 2">
+                <input type="text" class="a3" value="${q.answers[2].replace(/"/g, '&quot;')}" placeholder="Ответ 3">
                 <select class="correct-select">
                     <option value="0" ${q.correct === 0 ? 'selected' : ''}>Ответ 1</option>
                     <option value="1" ${q.correct === 1 ? 'selected' : ''}>Ответ 2</option>
@@ -370,7 +390,7 @@ function loadQuestionsList() {
     elements.questionsList.innerHTML = html;
 }
 
-// Добавление вопроса
+// ==== ДОБАВЛЕНИЕ ВОПРОСА ====
 if (elements.addQuestionBtn) {
     elements.addQuestionBtn.addEventListener("click", () => {
         questions.push({
@@ -382,7 +402,7 @@ if (elements.addQuestionBtn) {
     });
 }
 
-// Сохранение вопросов
+// ==== СОХРАНЕНИЕ ВОПРОСОВ ====
 if (elements.saveQuestionsBtn) {
     elements.saveQuestionsBtn.addEventListener("click", () => {
         const questionEdits = document.querySelectorAll('.question-edit');
@@ -408,19 +428,19 @@ if (elements.saveQuestionsBtn) {
     });
 }
 
-// Удаление вопроса
+// ==== УДАЛЕНИЕ ВОПРОСА ====
 window.deleteQuestion = function (index) {
-    questions.splice(index, 1);
-    loadQuestionsList();
+    if (confirm('Вы уверены, что хотите удалить этот вопрос?')) {
+        questions.splice(index, 1);
+        loadQuestionsList();
+    }
 };
 
-// Выход
+// ==== ВЫХОД ====
 window.logout = function () {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('role');
     localStorage.removeItem('loginTime');
-    localStorage.removeItem('isOneTimeUser');
-    localStorage.removeItem('completedTest');
     window.location.href = 'index.html';
 };
 
@@ -429,18 +449,34 @@ window.goToStart = function () {
     elements.startScreen.classList.remove("hidden");
 };
 
-window.restartTest = startTest;
+window.restartTest = function () {
+    if (role !== 'admin') {
+        alert('Только администратор может проходить тест повторно!');
+        return;
+    }
+    startTest();
+};
 
 if (elements.logoutBtn) {
     elements.logoutBtn.addEventListener("click", logout);
 }
 
-// Защита от перезагрузки для одноразовых
-window.addEventListener('beforeunload', function (e) {
-    if (isOneTimeUser && !elements.resultScreen.classList.contains('hidden')) {
-        if (!localStorage.getItem('completedTest')) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
+// Добавляем CSS для выделения выбранного ответа
+const style = document.createElement('style');
+style.textContent = `
+    .answer.selected {
+        background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+        color: white;
+        border-color: var(--accent);
+        transform: scale(1.02);
+        box-shadow: var(--neon-shadow);
     }
-});
+    
+    .answer.selected:hover {
+        transform: scale(1.02);
+    }
+`;
+document.head.appendChild(style);
+
+// Проверяем доступ при загрузке страницы
+checkTestAccess();

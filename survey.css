@@ -445,3 +445,27 @@ body.light .question-edit select {
         text-align: center;
     }
 }
+/* Стили для отключенных ответов */
+.answer.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: var(--glass-bg);
+}
+
+.answer.disabled:hover {
+    transform: none;
+    border-color: var(--glass-border);
+    box-shadow: none;
+}
+
+/* Стили для заблокированного стартового экрана */
+.test-blocked {
+    text-align: center;
+    padding: 2rem;
+}
+
+.test-blocked p {
+    margin: 1rem 0;
+    color: var(--text-secondary);
+}

@@ -78,11 +78,11 @@ function loadOneTimeUsers() {
         oneTimeUsers = JSON.parse(saved);
     } else {
         oneTimeUsers = [
-            { username: "guestA91", password: "X9k21", used: false },
-            { username: "student77", password: "P4z88", used: false },
-            { username: "tempUser5", password: "Lm203", used: false },
-            { username: "visitorX", password: "Qw912", used: false },
-            { username: "trial09", password: "Rt556", used: false }
+             { username: "mmy", password: "wwww", used: false },
+            { username: "visitoX", password: "w912", used: false },
+            { username: "trial09", password: "Rt556", used: false },
+            { username: "yyy", password: "rrr", used: false },
+            
         ];
         localStorage.setItem('oneTimeUsers', JSON.stringify(oneTimeUsers));
     }
