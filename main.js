@@ -7,7 +7,7 @@ document.addEventListener('keydown', e => {
 });
 
 // Элементы
-const body = document.body;
+const body = document.body; 
 const themeToggle = document.getElementById("themeToggle");
 const language = document.getElementById("language");
 const togglePass = document.getElementById("togglePass");
@@ -39,24 +39,24 @@ togglePass.onclick = () => {
 
 // Переводы
 const translations = {
-    ru: {
-        title: "Вход в систему",
-        login: "Войти",
-        error: "❌ Неверные данные или пароль уже использован",
+    ru: { 
+        title: "Вход в систему", 
+        login: "Войти", 
+        error: "❌ Неверные данные или пароль уже использован", 
         placeholder: "Имя пользователя",
         success: "✅ Успешный вход!"
     },
-    uz: {
-        title: "Tizimga kirish",
-        login: "Kirish",
-        error: "❌ Xato ma'lumot yoki parol ishlatilgan",
+    uz: { 
+        title: "Tizimga kirish", 
+        login: "Kirish", 
+        error: "❌ Xato ma'lumot yoki parol ishlatilgan", 
         placeholder: "Foydalanuvchi nomi",
         success: "✅ Muvaffaqiyatli kirish!"
     },
-    en: {
-        title: "System Login",
-        login: "Login",
-        error: "❌ Invalid credentials or password already used",
+    en: { 
+        title: "System Login", 
+        login: "Login", 
+        error: "❌ Invalid credentials or password already used", 
         placeholder: "Username",
         success: "✅ Login successful!"
     }
@@ -86,43 +86,18 @@ const admins = {
     "said": "392"
 };
 
-// ==== ОДНОРАЗОВЫЕ ПАРОЛИ (40 штук) ====
-let oneTimePasswords = [];
+// ==== ОДНОРАЗОВЫЕ ПОЛЬЗОВАТЕЛИ (НЕ ПАРОЛИ) ====
+let loginOneTimeUsers = [];
 
-// Функция для генерации случайных паролей
-function generatePasswords(count) {
-    const passwords = [];
-    const prefixes = ['TEMP', 'GUEST', 'USER', 'ACCESS', 'CODE', 'KEY', 'OPEN', 'ENTER', 'VISIT', 'LOGIN'];
-    const suffixes = ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010',
-        '011', '012', '013', '014', '015', '016', '017', '018', '019', '020',
-        '021', '022', '023', '024', '025', '026', '027', '028', '029', '030',
-        '031', '032', '033', '034', '035', '036', '037', '038', '039', '040'];
-
-    for (let i = 0; i < count; i++) {
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const suffix = suffixes[i];
-        const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-
-        passwords.push({
-            username: `${prefix}_${suffix}`,
-            password: `${prefix}${randomNum}`,
-            used: false,
-            created: new Date().toISOString()
-        });
-    }
-
-    return passwords;
-}
-
-// Загружаем одноразовые пароли
-function loadOneTimePasswords() {
-    const saved = localStorage.getItem('oneTimePasswords');
+// Загружаем одноразовых пользователей
+function loadOneTimeUsers() {
+    const saved = localStorage.getItem('oneTimeUsers');
     if (saved) {
-        oneTimePasswords = JSON.parse(saved);
+        loginOneTimeUsers = JSON.parse(saved);
     } else {
-        // Создаем 40 одноразовых паролей
-        oneTimePasswords = [
-            // Основные тестовые (10 штук)
+        // Создаем 40 одноразовых пользователей
+        loginOneTimeUsers = [
+            // Основные тестовые (10)
             { username: "guest_001", password: "guest123", used: false },
             { username: "tester_001", password: "test456", used: false },
             { username: "demo_001", password: "demo789", used: false },
@@ -133,8 +108,8 @@ function loadOneTimePasswords() {
             { username: "key_001", password: "key456", used: false },
             { username: "open_001", password: "open789", used: false },
             { username: "enter_001", password: "enter123", used: false },
-
-            // TEMP серия (10 штук)
+            
+            // TEMP серия (10)
             { username: "TEMP_001", password: "TEMP2024_01", used: false },
             { username: "TEMP_002", password: "TEMP2024_02", used: false },
             { username: "TEMP_003", password: "TEMP2024_03", used: false },
@@ -145,8 +120,8 @@ function loadOneTimePasswords() {
             { username: "TEMP_008", password: "TEMP2024_08", used: false },
             { username: "TEMP_009", password: "TEMP2024_09", used: false },
             { username: "TEMP_010", password: "TEMP2024_10", used: false },
-
-            // GUEST серия (10 штук)
+            
+            // GUEST серия (10)
             { username: "GUEST_011", password: "GUEST111", used: false },
             { username: "GUEST_012", password: "GUEST222", used: false },
             { username: "GUEST_013", password: "GUEST333", used: false },
@@ -157,8 +132,8 @@ function loadOneTimePasswords() {
             { username: "GUEST_018", password: "GUEST888", used: false },
             { username: "GUEST_019", password: "GUEST999", used: false },
             { username: "GUEST_020", password: "GUEST000", used: false },
-
-            // ACCESS серия (10 штук)
+            
+            // ACCESS серия (10)
             { username: "ACCESS_021", password: "ACCESS123", used: false },
             { username: "ACCESS_022", password: "ACCESS456", used: false },
             { username: "ACCESS_023", password: "ACCESS789", used: false },
@@ -168,62 +143,31 @@ function loadOneTimePasswords() {
             { username: "ACCESS_027", password: "ACCESS147", used: false },
             { username: "ACCESS_028", password: "ACCESS258", used: false },
             { username: "ACCESS_029", password: "ACCESS369", used: false },
-            { username: "ACCESS_030", password: "ACCESS741", used: false },
-
-            // Дополнительные (10 штук для запаса)
-            { username: "VISITOR_031", password: "VISITOR123", used: false },
-            { username: "VISITOR_032", password: "VISITOR456", used: false },
-            { username: "VISITOR_033", password: "VISITOR789", used: false },
-            { username: "VISITOR_034", password: "VISITOR321", used: false },
-            { username: "VISITOR_035", password: "VISITOR654", used: false },
-            { username: "VISITOR_036", password: "VISITOR987", used: false },
-            { username: "VISITOR_037", password: "VISITOR147", used: false },
-            { username: "VISITOR_038", password: "VISITOR258", used: false },
-            { username: "VISITOR_039", password: "VISITOR369", used: false },
-            { username: "VISITOR_040", password: "VISITOR741", used: false }
+            { username: "ACCESS_030", password: "ACCESS741", used: false }
         ];
-        localStorage.setItem('oneTimePasswords', JSON.stringify(oneTimePasswords));
+        localStorage.setItem('oneTimeUsers', JSON.stringify(loginOneTimeUsers));
     }
 }
 
-// Функция для проверки и использования одноразового пароля
-function useOneTimePassword(username, password) {
-    const passwords = JSON.parse(localStorage.getItem('oneTimePasswords')) || [];
-    const index = passwords.findIndex(p =>
-        p.username === username && p.password === password && !p.used
-    );
+// Загружаем пользователей
+loadOneTimeUsers();
 
+// Функция для проверки и использования одноразового пользователя
+function useOneTimeUser(username, password) {
+    const users = JSON.parse(localStorage.getItem('oneTimeUsers')) || [];
+    const index = users.findIndex(u => 
+        u.username === username && u.password === password && !u.used
+    );
+    
     if (index !== -1) {
         // Помечаем как использованный
-        passwords[index].used = true;
-        passwords[index].usedBy = username;
-        passwords[index].usedAt = new Date().toISOString();
-        localStorage.setItem('oneTimePasswords', JSON.stringify(passwords));
+        users[index].used = true;
+        users[index].usedAt = new Date().toISOString();
+        localStorage.setItem('oneTimeUsers', JSON.stringify(users));
         return true;
     }
     return false;
 }
-
-// Функция для получения списка неиспользованных паролей (для админов)
-function getAvailablePasswords() {
-    const passwords = JSON.parse(localStorage.getItem('oneTimePasswords')) || [];
-    return passwords.filter(p => !p.used);
-}
-
-// Функция для добавления нового одноразового пароля (для админов)
-function addOneTimePassword(username, password) {
-    const passwords = JSON.parse(localStorage.getItem('oneTimePasswords')) || [];
-    passwords.push({
-        username: username,
-        password: password,
-        used: false,
-        created: new Date().toISOString()
-    });
-    localStorage.setItem('oneTimePasswords', JSON.stringify(passwords));
-}
-
-// Загружаем пароли
-loadOneTimePasswords();
 
 // Логин
 loginBtn.onclick = function () {
@@ -253,12 +197,11 @@ loginBtn.onclick = function () {
 
         // Проверка одноразовых пользователей
         if (!valid) {
-            valid = useOneTimePassword(username, pass);
+            valid = useOneTimeUser(username, pass);
             if (valid) {
-                role = "temporary";
-                // СОХРАНЯЕМ ФЛАГ, ЧТО ЭТО ОДНОРАЗОВЫЙ ПОЛЬЗОВАТЕЛЬ
+                role = "user"; // Одноразовые пользователи получают роль user
                 localStorage.setItem('isOneTimeUser', 'true');
-
+                
                 // Записываем в историю входов
                 const loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
                 loginHistory.push({
@@ -282,7 +225,7 @@ loginBtn.onclick = function () {
             const lang = language.value;
             message.innerText = translations[lang].success;
             message.style.color = "var(--success)";
-
+            
             // Перенаправляем через небольшую задержку
             setTimeout(() => {
                 window.location.href = "survey.html";
@@ -296,25 +239,10 @@ loginBtn.onclick = function () {
     }, 1500);
 };
 
-// Добавляем возможность просмотра доступных паролей для админов (скрытая функция)
-// Можно вызвать в консоли: showAvailablePasswords()
-window.showAvailablePasswords = function () {
-    const available = getAvailablePasswords();
-    console.log('Доступные одноразовые пароли:', available);
+// Функция для просмотра доступных пользователей (для отладки)
+window.showAvailableUsers = function() {
+    const users = JSON.parse(localStorage.getItem('oneTimeUsers')) || [];
+    const available = users.filter(u => !u.used);
+    console.log('Доступные одноразовые пользователи:', available);
     return available;
-};
-
-// Функция для добавления нового пароля (для админов)
-window.addNewPassword = function (username, password) {
-    addOneTimePassword(username, password);
-    console.log(`✅ Пароль добавлен: ${username} / ${password}`);
-};
-
-// Функция для сброса всех паролей (только для разработки)
-window.resetAllPasswords = function () {
-    if (confirm('Сбросить все одноразовые пароли?')) {
-        localStorage.removeItem('oneTimePasswords');
-        loadOneTimePasswords();
-        console.log('✅ Все пароли сброшены');
-    }
 };
